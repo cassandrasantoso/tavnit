@@ -1,0 +1,5 @@
+{
+  "name": "projects/project-cf839023-e297-40f1-a66/locations/us-central1/glossaries/spots-ja-en",
+  "languagePair": { "sourceLanguageCode": "ja", "targetLanguageCode": "en" },
+  "inputConfig": { "gcsSource": { "inputUri": "gs://tavnit-glossary-cf839023/spots-ja-en.csv" } }
+}
