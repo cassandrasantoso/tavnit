@@ -20,7 +20,7 @@ Route::middleware(['auth', EnsureUserIsStaff::class])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::resource('refill-spots', RefillSpotController::class);
+        Route::resource('refill-spots', RefillSpotController::class)->except(['show']);
 
         Route::post('refill-spots/{refill_spot}/restore', [RefillSpotController::class, 'restore'])
             ->name('refill-spots.restore')
