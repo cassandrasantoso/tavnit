@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\SpotController;
 use App\Http\Controllers\Api\TokenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -13,5 +14,8 @@ Route::prefix('v1')->group(function () {
 
         // Who am I? Handy for checking a token works.
         Route::get('me', fn (Request $request) => $request->user()->only('id', 'name', 'email'));
+
+        // Active refill spots, 20 per page.
+        Route::get('spots', [SpotController::class, 'index']);
     });
 });
