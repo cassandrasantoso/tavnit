@@ -128,3 +128,8 @@ test('a refill needs a real client id and a location', function () {
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['client_id', 'latitude', 'longitude']);
 });
+
+test('history and stats need a token', function () {
+    $this->getJson('/api/v1/refills')->assertUnauthorized();
+    $this->getJson('/api/v1/me/stats')->assertUnauthorized();
+});

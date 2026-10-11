@@ -21,5 +21,10 @@ Route::prefix('v1')->group(function () {
 
         // Send a refill: saved as pending; the same client_id twice counts once.
         Route::post('refills', [RefillController::class, 'store']);
+
+        // The user's own refill history, one refill, and their stats.
+        Route::get('refills', [RefillController::class, 'index']);
+        Route::get('refills/{refill}', [RefillController::class, 'show']);
+        Route::get('me/stats', [RefillController::class, 'stats']);
     });
 });

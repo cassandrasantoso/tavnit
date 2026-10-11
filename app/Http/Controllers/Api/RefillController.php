@@ -8,6 +8,9 @@ use App\Http\Resources\RefillResource;
 use App\Models\Refill;
 use App\Services\RefillVerifier;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
 class RefillController extends Controller
 {
@@ -39,10 +42,50 @@ class RefillController extends Controller
         // Read back what the database stored, so a new refill and a retry
         // look exactly the same (number types, lower-case UUID).
         $created = $refill->wasRecentlyCreated;
-        $refill->refresh();
+        $refill->refresh()->load('spot');
 
         return (new RefillResource($refill))
             ->response()
             ->setStatusCode($created ? 201 : 200);
+    }
+
+    // GET /api/v1/refills
+    // The user's own refills, newest first, 20 per page.
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $refills = $request->user()->refills()
+            ->with('spot') // load all the spots in one query, not one per refill
+            ->latest('logged_at')
+            ->paginate(20);
+
+        return RefillResource::collection($refills);
+    }
+
+    // GET /api/v1/refills/{refill}
+    // One refill, only if it belongs to the user (RefillPolicy).
+    public function show(Refill $refill): RefillResource
+    {
+        Gate::authorize('view', $refill);
+
+        return new RefillResource($refill->load('spot'));
+    }
+
+    // GET /api/v1/me/stats
+    // Confirmed refills, with the label from config/tavnit.php.
+    public function stats(Request $request): JsonResponse
+    {
+        $confirmed = $request->user()->refills()
+            ->where('status', 'confirmed')
+            ->count();
+
+        return response()->json([
+            'data' => [
+                'confirmed_refills' => $confirmed,
+                'impact' => [
+                    'value' => $confirmed, // one bottle per confirmed refill
+                    'label' => config('tavnit.stats.unit_label'),
+                ],
+            ],
+        ]);
     }
 }

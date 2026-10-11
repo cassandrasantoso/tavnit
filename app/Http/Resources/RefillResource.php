@@ -18,6 +18,8 @@ class RefillResource extends JsonResource
             'id' => $this->id,
             'client_id' => $this->client_id,
             'refill_spot_id' => $this->refill_spot_id,
+            'spot_name' => $this->whenLoaded('spot', fn () => $this->spot->name),
+            'distance_m' => $this->distance_m,
             'status' => $this->status,
             'reason' => $this->auto_reason,
             'logged_at' => $this->logged_at?->toIso8601String(),
