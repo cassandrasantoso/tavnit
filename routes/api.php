@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\RefillController;
 use App\Http\Controllers\Api\SpotController;
 use App\Http\Controllers\Api\TokenController;
 use Illuminate\Http\Request;
@@ -17,5 +18,8 @@ Route::prefix('v1')->group(function () {
 
         // Active refill spots, 20 per page.
         Route::get('spots', [SpotController::class, 'index']);
+
+        // Send a refill: saved as pending; the same client_id twice counts once.
+        Route::post('refills', [RefillController::class, 'store']);
     });
 });

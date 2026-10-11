@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Refill;
 use App\Models\RefillSpot;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 
 // Login and logout
@@ -60,4 +62,69 @@ test('the spots list shows only active spots', function () {
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.name', '表参道のカフェ');
+});
+
+// Refills
+
+test('an app user can send a refill, saved as pending', function () {
+    $user = User::factory()->create();
+    $spot = RefillSpot::factory()->create();
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/v1/refills', [
+        'client_id' => (string) Str::uuid(),
+        'refill_spot_id' => $spot->id,
+        'latitude' => 35.6595,
+        'longitude' => 139.7005,
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.status', 'pending');
+
+    expect($user->refills()->count())->toBe(1);
+});
+
+test('sending the same refill twice only saves it once', function () {
+    $spot = RefillSpot::factory()->create();
+    Sanctum::actingAs(User::factory()->create());
+
+    $payload = [
+        'client_id' => (string) Str::uuid(),
+        'refill_spot_id' => $spot->id,
+        'latitude' => 35.6595,
+        'longitude' => 139.7005,
+    ];
+
+    $first = $this->postJson('/api/v1/refills', $payload)->assertCreated();
+    $this->postJson('/api/v1/refills', $payload)
+        ->assertOk()
+        ->assertJsonPath('data.id', $first->json('data.id'));
+
+    expect(Refill::count())->toBe(1);
+});
+
+test('a refill at an inactive spot is refused', function () {
+    $spot = RefillSpot::factory()->create(['is_active' => false]);
+    Sanctum::actingAs(User::factory()->create());
+
+    $this->postJson('/api/v1/refills', [
+        'client_id' => (string) Str::uuid(),
+        'refill_spot_id' => $spot->id,
+        'latitude' => 35.6595,
+        'longitude' => 139.7005,
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('refill_spot_id');
+});
+
+test('a refill needs a real client id and a location', function () {
+    $spot = RefillSpot::factory()->create();
+    Sanctum::actingAs(User::factory()->create());
+
+    $this->postJson('/api/v1/refills', [
+        'client_id' => 'not-a-uuid',
+        'refill_spot_id' => $spot->id,
+        'latitude' => 200,
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['client_id', 'latitude', 'longitude']);
 });
