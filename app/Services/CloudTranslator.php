@@ -43,11 +43,11 @@ class CloudTranslator
         $glossaryId = config('services.google_translate.glossary');
         if ($glossaryId && $from === 'ja' && $to === 'en') {
             $request['glossaryConfig'] = [
-                'glossary' => "projects/{$project}/locations/" . self::REGION . "/glossaries/{$glossaryId}",
+                'glossary' => "projects/{$project}/locations/".self::REGION."/glossaries/{$glossaryId}",
             ];
         }
 
-        $url = "https://translation.googleapis.com/v3/projects/{$project}/locations/" . self::REGION . ':translateText';
+        $url = "https://translation.googleapis.com/v3/projects/{$project}/locations/".self::REGION.':translateText';
 
         $response = Http::timeout(20)
             ->withToken($this->getAccessToken())

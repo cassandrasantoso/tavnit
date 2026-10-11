@@ -21,7 +21,7 @@ class RefillSpotFactory extends Factory
         $types = ['カフェ', 'ベーカリー', '本屋', 'ギャラリー', 'ラーメン店', '公園'];
 
         return [
-            'name' => fake()->randomElement($areas) . 'の' . fake()->randomElement($types),
+            'name' => fake()->randomElement($areas).'の'.fake()->randomElement($types),
             'description_ja' => fake()->randomElement([
                 'マイボトルを持参すれば、無料でお水を入れられます。',
                 '店内のスタッフに声をかけてください。',

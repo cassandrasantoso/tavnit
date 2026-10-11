@@ -32,6 +32,7 @@ return new class extends Migration
             $table->index(['refill_spot_id', 'logged_at']); // repeat check
         });
     }
+
     /**
      * Reverse the migrations.
      */
