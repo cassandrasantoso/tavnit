@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['user_id', 'refill_spot_id', 'client_id', 'latitude', 'longitude', 'logged_at'])]
 class Refill extends Model
 {
+    use HasFactory;
+
     // Defaults for a new, unsaved refill, so the reply shows "pending" straight away.
     protected $attributes = [
         'auto_status' => 'pending',

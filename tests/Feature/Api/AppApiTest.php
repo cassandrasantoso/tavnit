@@ -66,9 +66,9 @@ test('the spots list shows only active spots', function () {
 
 // Refills
 
-test('an app user can send a refill, saved as pending', function () {
+test('an app user can send a refill at a spot', function () {
     $user = User::factory()->create();
-    $spot = RefillSpot::factory()->create();
+    $spot = RefillSpot::factory()->create(['latitude' => 35.6595, 'longitude' => 139.7005]);
     Sanctum::actingAs($user);
 
     $this->postJson('/api/v1/refills', [
@@ -78,7 +78,7 @@ test('an app user can send a refill, saved as pending', function () {
         'longitude' => 139.7005,
     ])
         ->assertCreated()
-        ->assertJsonPath('data.status', 'pending');
+        ->assertJsonPath('data.status', 'confirmed');
 
     expect($user->refills()->count())->toBe(1);
 });

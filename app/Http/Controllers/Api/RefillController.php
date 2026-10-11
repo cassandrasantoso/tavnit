@@ -6,14 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRefillRequest;
 use App\Http\Resources\RefillResource;
 use App\Models\Refill;
+use App\Services\RefillVerifier;
 use Illuminate\Http\JsonResponse;
 
 class RefillController extends Controller
 {
     // POST /api/v1/refills
-    // Saves a refill as pending. Sending the same client_id again returns the
-    // first one (200) instead of saving a second (201).
-    public function store(StoreRefillRequest $request): JsonResponse
+    // Saves a refill and checks it (confirmed or rejected). Sending the same
+    // client_id again returns the first one (200) instead of saving a second (201).
+    public function store(StoreRefillRequest $request, RefillVerifier $verifier): JsonResponse
     {
         $data = $request->validated();
 
@@ -29,6 +30,11 @@ class RefillController extends Controller
                 'logged_at' => now(),
             ],
         );
+
+        // Only a brand-new refill is checked; a retry keeps its first result.
+        if ($refill->wasRecentlyCreated) {
+            $verifier->verify($refill);
+        }
 
         // Read back what the database stored, so a new refill and a retry
         // look exactly the same (number types, lower-case UUID).
