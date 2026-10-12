@@ -10,6 +10,7 @@
 <body>
     <header>
         <a href="{{ route('admin.refill-spots.index') }}">Refill spots</a>
+        <a href="{{ route('admin.applications.index') }}">Applications</a>
 
         @auth
             <span>{{ auth()->user()->email }}</span>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\PartnerApplicationController;
 use App\Http\Controllers\RefillSpotController;
 use App\Http\Middleware\EnsureUserIsStaff;
 use Illuminate\Support\Facades\Route;
@@ -25,4 +26,10 @@ Route::middleware(['auth', EnsureUserIsStaff::class])
         Route::post('refill-spots/{refill_spot}/restore', [RefillSpotController::class, 'restore'])
             ->name('refill-spots.restore')
             ->withTrashed();
+
+        // Review queue: list by state, and one application's details.
+        Route::get('applications', [PartnerApplicationController::class, 'index'])
+            ->name('applications.index');
+        Route::get('applications/{application}', [PartnerApplicationController::class, 'show'])
+            ->name('applications.show');
     });
