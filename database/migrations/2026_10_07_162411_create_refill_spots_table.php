@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('refill_spots', function (Blueprint $table) {
-          $table->id();
-          $table->string('name', 100);
-          $table->text('description_ja')->nullable();
-          $table->decimal('latitude', 9, 6);
-          $table->decimal('longitude', 9, 6);
-          $table->boolean('is_active')->default(true);
-          $table->timestamps();
-          $table->softDeletes();
+            $table->id();
+            $table->string('name', 100);
+            $table->text('description_ja')->nullable();
+            $table->decimal('latitude', 9, 6);
+            $table->decimal('longitude', 9, 6);
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

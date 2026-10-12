@@ -36,8 +36,8 @@ return [
     ],
 
     'google_translate' => [
-    'project' => env('GOOGLE_CLOUD_PROJECT'),
-    'glossary' => env('TRANSLATE_GLOSSARY_ID'),
-],
+        'project' => env('GOOGLE_CLOUD_PROJECT'),
+        'glossary' => env('TRANSLATE_GLOSSARY_ID'),
+    ],
 
 ];
