@@ -10,7 +10,8 @@ Route::prefix('v1')->group(function () {
     // 5 login attempts per minute.
     Route::post('login', [TokenController::class, 'store'])->middleware('throttle:5,1');
 
-    Route::middleware('auth:sanctum')->group(function () {
+    // Everything else needs a token, and each user gets 60 requests a minute.
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         Route::post('logout', [TokenController::class, 'destroy']);
 
         // Who am I? Handy for checking a token works.
@@ -19,7 +20,7 @@ Route::prefix('v1')->group(function () {
         // Active refill spots, 20 per page.
         Route::get('spots', [SpotController::class, 'index']);
 
-        // Send a refill: saved as pending; the same client_id twice counts once.
+        // Send a refill: saved and checked; the same client_id twice counts once.
         Route::post('refills', [RefillController::class, 'store']);
 
         // The user's own refill history, one refill, and their stats.

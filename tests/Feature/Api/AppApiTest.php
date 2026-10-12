@@ -133,3 +133,13 @@ test('history and stats need a token', function () {
     $this->getJson('/api/v1/refills')->assertUnauthorized();
     $this->getJson('/api/v1/me/stats')->assertUnauthorized();
 });
+
+test('the API slows down a user who sends too many requests', function () {
+    Sanctum::actingAs(User::factory()->create());
+
+    foreach (range(1, 60) as $i) {
+        $this->getJson('/api/v1/me')->assertOk();
+    }
+
+    $this->getJson('/api/v1/me')->assertTooManyRequests();
+});

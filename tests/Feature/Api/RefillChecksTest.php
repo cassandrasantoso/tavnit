@@ -74,3 +74,66 @@ test('the same spot again after 5 minutes is fine', function () {
 
     sendRefill($this->spot)->assertJsonPath('data.status', 'confirmed');
 });
+
+// Edges
+
+test('exactly 200 m away still counts', function () {
+    sendRefill($this->spot, 0.001799) // about 200.0 m
+        ->assertJsonPath('data.status', 'confirmed')
+        ->assertJsonPath('data.distance_m', 200);
+});
+
+test('201 m away is too far', function () {
+    sendRefill($this->spot, 0.001808) // about 201.0 m
+        ->assertJsonPath('data.reason', 'too_far')
+        ->assertJsonPath('data.distance_m', 201);
+});
+
+test('the tenth refill of the day is still fine', function () {
+    Refill::factory()->count(9)->confirmed()->create([
+        'user_id' => $this->user->id,
+        'logged_at' => now()->subHour(),
+    ]);
+
+    sendRefill($this->spot)->assertJsonPath('data.status', 'confirmed');
+});
+
+test('rejected refills do not count towards the daily limit', function () {
+    Refill::factory()->count(10)->create([
+        'user_id' => $this->user->id,
+        'logged_at' => now()->subHour(),
+        'auto_status' => 'rejected',
+        'status' => 'rejected',
+        'auto_reason' => 'too_far',
+    ]);
+
+    sendRefill($this->spot)->assertJsonPath('data.status', 'confirmed');
+});
+
+test('a retry keeps its first result', function () {
+    $payload = [
+        'client_id' => (string) Str::uuid(),
+        'refill_spot_id' => $this->spot->id,
+        'latitude' => 35.658,
+        'longitude' => 139.701,
+    ];
+    $this->postJson('/api/v1/refills', $payload)->assertJsonPath('data.status', 'confirmed');
+
+    // If the retry were checked again, these 10 would push it over the daily limit.
+    Refill::factory()->count(10)->confirmed()->create([
+        'user_id' => $this->user->id,
+        'logged_at' => now()->subMinutes(30),
+    ]);
+
+    $this->postJson('/api/v1/refills', $payload)
+        ->assertOk()
+        ->assertJsonPath('data.status', 'confirmed');
+});
+
+test('a refill at a removed spot is refused', function () {
+    $this->spot->delete();
+
+    sendRefill($this->spot)
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('refill_spot_id');
+});
