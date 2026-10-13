@@ -12,9 +12,18 @@ class PartnerApplicationFactory extends Factory
 {
     public function definition(): array
     {
+        // Each type with the Japanese word used in its made-up name.
+        $types = [
+            'cafe' => 'カフェ',
+            'bakery' => 'ベーカリー',
+            'shop' => '雑貨店',
+            'hotel' => 'ゲストハウス',
+        ];
+        $type = fake()->randomKey($types);
+
         return [
-            'store_name' => fake()->randomElement(['カフェ', 'ベーカリー', '雑貨店', 'ゲストハウス']).' '.fake()->unique()->lexify('????'),
-            'store_type' => fake()->randomElement(['cafe', 'bakery', 'shop', 'hotel']),
+            'store_name' => $types[$type].' '.fake()->unique()->lexify('????'),
+            'store_type' => $type,
             'address' => '東京都渋谷区 '.fake()->numberBetween(1, 5).'-'.fake()->numberBetween(1, 30),
             'description_ja' => '店内で給水できます。マイボトルをお持ちください。',
             'hours_note_ja' => '平日 9:00–18:00',
