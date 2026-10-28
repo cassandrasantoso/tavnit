@@ -32,4 +32,7 @@ Route::middleware(['auth', EnsureUserIsStaff::class])
             ->name('applications.index');
         Route::get('applications/{application}', [PartnerApplicationController::class, 'show'])
             ->name('applications.show');
+
+        Route::post('applications/{application}/claim', [PartnerApplicationController::class, 'claim'])
+            ->name('applications.claim');
     });

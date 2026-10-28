@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ApplicationState;
 use App\Models\PartnerApplication;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -48,5 +49,35 @@ class PartnerApplicationController extends Controller
         return view('admin.applications.show', [
             'application' => $application->load('claimedBy'),
         ]);
+    }
+
+    // POST /admin/applications/{application}/claim
+    // Takes an application for review. The version from the page must still match the row,
+    // so if two staff click Claim at the same moment, only one of them gets it.
+    public function claim(Request $request, PartnerApplication $application): RedirectResponse
+    {
+        $request->validate(['version' => ['required', 'integer']]);
+
+        // The enum decides which moves are allowed (only Submitted can go to In review).
+        if (! $application->state->canMoveTo(ApplicationState::InReview)) {
+            return back()->withErrors(['application' => 'This application is not waiting for a reviewer any more.']);
+        }
+
+        // One UPDATE that only matches if nobody changed the row since the page was loaded.
+        // increment() adds 1 to version, sets the other columns, and updates updated_at.
+        $changed = PartnerApplication::whereKey($application->getKey())
+            ->where('version', $request->integer('version'))
+            ->increment('version', 1, [
+                'state' => ApplicationState::InReview->value,
+                'claimed_by' => $request->user()->id,
+                'claimed_at' => now(),
+            ]);
+
+        if ($changed === 0) {
+            return back()->withErrors(['application' => 'Someone else changed this application first. Reload the page to see the latest.']);
+        }
+
+        return redirect()->route('admin.applications.show', $application)
+            ->with('status', 'You are now reviewing this application.');
     }
 }
