@@ -28,14 +28,30 @@ class CloudTranslator
      */
     public function translate(string $text, string $from = 'ja', string $to = 'en'): array
     {
+        return $this->translateMany([$text], $from, $to)[0];
+    }
+
+    /**
+     * Translates several texts in one request. Returns one result per text,
+     * in the same order, each shaped like translate().
+     *
+     * @param  list<string>  $texts
+     * @return list<array{plain: string, glossary: ?string}>
+     */
+    public function translateMany(array $texts, string $from = 'ja', string $to = 'en', int $timeoutSeconds = 20): array
+    {
         $this->checkLanguages($from, $to);
+
+        if ($texts === []) {
+            return [];
+        }
 
         $project = config('services.google_translate.project');
 
         $request = [
             'sourceLanguageCode' => $from,
             'targetLanguageCode' => $to,
-            'contents' => [$text],
+            'contents' => array_values($texts),
             'mimeType' => 'text/plain',
         ];
 
@@ -49,7 +65,7 @@ class CloudTranslator
 
         $url = "https://translation.googleapis.com/v3/projects/{$project}/locations/".self::REGION.':translateText';
 
-        $response = Http::timeout(20)
+        $response = Http::timeout($timeoutSeconds)
             ->withToken($this->getAccessToken())
             ->withHeaders(['x-goog-user-project' => $project])
             ->post($url, $request);
@@ -58,10 +74,15 @@ class CloudTranslator
 
         $result = $response->json();
 
-        return [
-            'plain' => $result['translations'][0]['translatedText'] ?? '',
-            'glossary' => $result['glossaryTranslations'][0]['translatedText'] ?? null,
-        ];
+        $results = [];
+        foreach (array_keys($request['contents']) as $i) {
+            $results[] = [
+                'plain' => $result['translations'][$i]['translatedText'] ?? '',
+                'glossary' => $result['glossaryTranslations'][$i]['translatedText'] ?? null,
+            ];
+        }
+
+        return $results;
     }
 
     private function checkLanguages(string $from, string $to): void

@@ -19,6 +19,15 @@ return [
         'reasons' => ['address_unconfirmed', 'possible_duplicate', 'missing_information', 'other'],
     ],
 
+    'translation' => [
+        // How long a page waits for Google before showing the Japanese instead.
+        'timeout_seconds' => (int) env('TAVNIT_TRANSLATION_TIMEOUT', 5),
+
+        // Stop calling Google after this many characters in a month
+        // (kept below Google's free 500,000 so a mistake can't cost money).
+        'monthly_char_limit' => (int) env('TAVNIT_TRANSLATION_MONTHLY_LIMIT', 400000),
+    ],
+
     'stats' => [
         // What one confirmed check-in means to the user (used in Step 6).
         'unit_label' => env('TAVNIT_UNIT_LABEL', 'bottles saved'),
