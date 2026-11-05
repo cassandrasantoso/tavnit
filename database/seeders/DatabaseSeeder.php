@@ -27,5 +27,7 @@ class DatabaseSeeder extends Seeder
         User::factory()->create(['name' => 'App User Two', 'email' => 'user2@tavnit.test']);
 
         RefillSpot::factory(20)->create();
+
+        $this->call(PartnerApplicationSeeder::class);
     }
 }

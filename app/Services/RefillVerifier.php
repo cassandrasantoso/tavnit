@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Refill;
 use App\Models\User;
+use App\Support\Geo;
 use Illuminate\Support\Facades\DB;
 
 // Checks a new refill and records the result on it.
@@ -24,7 +25,7 @@ class RefillVerifier
             $rules = config('tavnit.checkins');
             $spot = $refill->spot;
 
-            $distance = (int) round($this->distanceInMetres(
+            $distance = (int) round(Geo::distanceInMetres(
                 (float) $refill->latitude, (float) $refill->longitude,
                 (float) $spot->latitude, (float) $spot->longitude,
             ));
@@ -79,18 +80,5 @@ class RefillVerifier
             ->where('logged_at', '>', $refill->logged_at->copy()->subMinutes($minutes))
             ->where('logged_at', '<=', $refill->logged_at)
             ->exists();
-    }
-
-    // Distance between two points on Earth, in meters (haversine formula).
-    private function distanceInMetres(float $lat1, float $lng1, float $lat2, float $lng2): float
-    {
-        $earthRadius = 6371000; // mean radius in metres
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLng = deg2rad($lng2 - $lng1);
-
-        $a = sin($dLat / 2) ** 2
-            + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
-
-        return 2 * $earthRadius * asin(min(1, sqrt($a)));
     }
 }

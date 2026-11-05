@@ -10,6 +10,15 @@ return [
         'timezone' => env('TAVNIT_TIMEZONE', 'Asia/Tokyo'),
     ],
 
+    'review' => [
+        // An application is flagged if an existing spot with the same name is this close.
+        'duplicate_radius_m' => (int) env('TAVNIT_DUPLICATE_RADIUS_M', 50),
+
+        // Reasons staff can give when sending an application back or rejecting it.
+        // The wording lives in lang/en/review.php and lang/ja/review.php.
+        'reasons' => ['address_unconfirmed', 'possible_duplicate', 'missing_information', 'other'],
+    ],
+
     'stats' => [
         // What one confirmed check-in means to the user (used in Step 6).
         'unit_label' => env('TAVNIT_UNIT_LABEL', 'bottles saved'),
