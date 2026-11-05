@@ -31,6 +31,36 @@
         </form>
     @endif
 
+    @if ($application->state === \App\Enums\ApplicationState::InReview && $application->claimedBy?->is(auth()->user()))
+        <form method="POST" action="{{ route('admin.applications.decide', $application) }}">
+            @csrf
+            <input type="hidden" name="version" value="{{ $application->version }}">
+
+            <fieldset>
+                <legend>Decision</legend>
+                <label><input type="radio" name="decision" value="approved" @checked(old('decision') === 'approved')> Approve</label>
+                <label><input type="radio" name="decision" value="returned" @checked(old('decision') === 'returned')> Send back to the shop</label>
+                <label><input type="radio" name="decision" value="rejected" @checked(old('decision') === 'rejected')> Reject</label>
+                @error('decision') <p role="alert">{{ $message }}</p> @enderror
+            </fieldset>
+
+            <label for="reason">Reason (needed to send back or reject)</label>
+            <select id="reason" name="reason">
+                <option value="">—</option>
+                @foreach (config('tavnit.review.reasons') as $code)
+                    <option value="{{ $code }}" @selected(old('reason') === $code)>{{ __("review.reasons.$code") }}</option>
+                @endforeach
+            </select>
+            @error('reason') <p role="alert">{{ $message }}</p> @enderror
+
+            <label for="note">Note (needed if the reason is "Other")</label>
+            <textarea id="note" name="note" rows="3">{{ old('note') }}</textarea>
+            @error('note') <p role="alert">{{ $message }}</p> @enderror
+
+            <button type="submit">Save decision</button>
+        </form>
+    @endif
+
     <dl>
         <dt>Type</dt>
         <dd>{{ $application->store_type }}</dd>
@@ -59,4 +89,23 @@
         <dt>Reviewer</dt>
         <dd>{{ $application->claimedBy?->name ?? 'Nobody yet' }}</dd>
     </dl>
+
+    <h2>History</h2>
+    <ol>
+        @forelse ($application->stateChanges as $change)
+            <li>
+                {{ $change->created_at->format('Y-m-d H:i') }} · {{ $change->user?->name ?? 'Someone' }}:
+                {{ $change->from_state->label() }} → {{ $change->to_state->label() }}
+                @if ($change->reason)
+                    · {{ __("review.reasons.{$change->reason}") }}
+                    ({{ __("review.reasons.{$change->reason}", [], 'ja') }})
+                @endif
+                @if ($change->note)
+                    <div style="white-space: pre-line">{{ $change->note }}</div>
+                @endif
+            </li>
+        @empty
+            <li>No changes yet.</li>
+        @endforelse
+    </ol>
 </x-layout>

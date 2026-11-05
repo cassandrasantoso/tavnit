@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 // Only what the shop fills in. State, claim, version and spot are changed by staff code.
 #[Fillable([
@@ -41,6 +42,12 @@ class PartnerApplication extends Model
     public function claimedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'claimed_by');
+    }
+
+    // Every state change, oldest first: the audit trail.
+    public function stateChanges(): HasMany
+    {
+        return $this->hasMany(ApplicationStateChange::class)->oldest('id');
     }
 
     // The refill spot made from it, once published.
