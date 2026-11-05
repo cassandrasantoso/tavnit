@@ -61,6 +61,22 @@
         </form>
     @endif
 
+    @if ($application->state === \App\Enums\ApplicationState::Approved)
+        <form method="POST" action="{{ route('admin.applications.publish', $application) }}">
+            @csrf
+            <input type="hidden" name="version" value="{{ $application->version }}">
+            @if ($duplicates->isNotEmpty())
+                <label><input type="checkbox" name="confirm_duplicate" value="1"> Publish anyway: it is not the same place</label>
+            @endif
+            @error('confirm_duplicate') <p role="alert">{{ $message }}</p> @enderror
+            <button type="submit">Publish as a refill spot</button>
+        </form>
+    @endif
+
+    @if ($application->spot)
+        <p>Published as <a href="{{ route('admin.refill-spots.edit', $application->spot) }}">{{ $application->spot->name }}</a>.</p>
+    @endif
+
     <dl>
         <dt>Type</dt>
         <dd>{{ $application->store_type }}</dd>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ApplicationState;
 use App\Models\PartnerApplication;
+use App\Models\RefillSpot;
 use App\Services\DuplicateSpotFinder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,7 +52,7 @@ class PartnerApplicationController extends Controller
     public function show(PartnerApplication $application, DuplicateSpotFinder $duplicates): View
     {
         return view('admin.applications.show', [
-            'application' => $application->load(['claimedBy', 'stateChanges.user']),
+            'application' => $application->load(['claimedBy', 'spot', 'stateChanges.user']),
             'duplicates' => $duplicates->findFor($application),
         ]);
     }
@@ -148,5 +149,69 @@ class PartnerApplicationController extends Controller
 
         return redirect()->route('admin.applications.show', $application)
             ->with('status', "Decision saved: {$next->label()}.");
+    }
+
+    // POST /admin/applications/{application}/publish
+    // Turns an approved application into a refill spot that the app can show.
+    // If it looks like an existing spot, staff must tick a box to publish anyway.
+    public function publish(Request $request, PartnerApplication $application, DuplicateSpotFinder $duplicates): RedirectResponse
+    {
+        $data = $request->validate([
+            'version' => ['required', 'integer'],
+            'confirm_duplicate' => ['nullable', 'boolean'],
+        ]);
+
+        if (! $application->state->canMoveTo(ApplicationState::Published)) {
+            return back()->withErrors(['application' => 'Only approved applications can be published.']);
+        }
+
+        if ($duplicates->findFor($application)->isNotEmpty() && ! $request->boolean('confirm_duplicate')) {
+            return back()->withErrors(['confirm_duplicate' => 'This looks like an existing spot. Tick the box to publish it anyway.']);
+        }
+
+        // Lock the row, check nothing changed, then create the spot, update the application
+        // and add the history row together. If any part fails, none of it is saved.
+        $spot = DB::transaction(function () use ($request, $application, $data) {
+            $current = PartnerApplication::whereKey($application->getKey())->lockForUpdate()->first();
+
+            if ((int) $current->version !== (int) $data['version'] || $current->state !== ApplicationState::Approved) {
+                return null;
+            }
+
+            $spot = RefillSpot::create([
+                'name' => self::tidyName($current->store_name),
+                'description_ja' => $current->description_ja,
+                'latitude' => $current->latitude,
+                'longitude' => $current->longitude,
+                'is_active' => true,
+            ]);
+
+            $current->forceFill([
+                'state' => ApplicationState::Published,
+                'refill_spot_id' => $spot->id,
+                'version' => $current->version + 1,
+            ])->save();
+
+            $current->stateChanges()->create([
+                'user_id' => $request->user()->id,
+                'from_state' => ApplicationState::Approved,
+                'to_state' => ApplicationState::Published,
+            ]);
+
+            return $spot;
+        });
+
+        if ($spot === null) {
+            return back()->withErrors(['application' => 'Someone else changed this application first. Reload the page to see the latest.']);
+        }
+
+        return redirect()->route('admin.applications.show', $application)
+            ->with('status', "Published as {$spot->name}.");
+    }
+
+    // Removes spaces at both ends, including the full-width space (U+3000).
+    private static function tidyName(string $name): string
+    {
+        return preg_replace('/^[\s\x{3000}]+|[\s\x{3000}]+$/u', '', $name);
     }
 }

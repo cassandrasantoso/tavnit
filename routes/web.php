@@ -37,4 +37,6 @@ Route::middleware(['auth', EnsureUserIsStaff::class])
             ->name('applications.claim');
         Route::post('applications/{application}/decide', [PartnerApplicationController::class, 'decide'])
             ->name('applications.decide');
+        Route::post('applications/{application}/publish', [PartnerApplicationController::class, 'publish'])
+            ->name('applications.publish');
     });

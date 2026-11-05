@@ -27,6 +27,8 @@ class DuplicateSpotFinder
         $lngDelta = $radius / (111320 * cos(deg2rad($lat)));
 
         return RefillSpot::query()
+            // Once published, the application's own spot is not a duplicate of itself.
+            ->when($application->refill_spot_id, fn ($query, $id) => $query->whereKeyNot($id))
             ->whereBetween('latitude', [$lat - $latDelta, $lat + $latDelta])
             ->whereBetween('longitude', [$lng - $lngDelta, $lng + $lngDelta])
             ->get()
