@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ApplicationState;
+use App\Models\Concerns\HasTranslations;
 use Database\Factories\PartnerApplicationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,13 +19,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PartnerApplication extends Model
 {
     /** @use HasFactory<PartnerApplicationFactory> */
-    use HasFactory;
+    use HasFactory, HasTranslations;
 
     // New applications start as submitted, version 1.
     protected $attributes = [
         'state' => 'submitted',
         'version' => 1,
     ];
+
+    // Free text staff can read in English. Store name and address are shown as submitted.
+    public function translatableFields(): array
+    {
+        return ['description_ja', 'hours_note_ja', 'message_ja'];
+    }
 
     protected function casts(): array
     {
