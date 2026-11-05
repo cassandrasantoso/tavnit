@@ -10,6 +10,11 @@ return [
         'timezone' => env('TAVNIT_TIMEZONE', 'Asia/Tokyo'),
     ],
 
+    'review' => [
+        // An application is flagged if an existing spot with the same name is this close.
+        'duplicate_radius_m' => (int) env('TAVNIT_DUPLICATE_RADIUS_M', 50),
+    ],
+
     'stats' => [
         // What one confirmed check-in means to the user (used in Step 6).
         'unit_label' => env('TAVNIT_UNIT_LABEL', 'bottles saved'),

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ApplicationState;
 use App\Models\PartnerApplication;
+use App\Services\DuplicateSpotFinder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -43,11 +44,13 @@ class PartnerApplicationController extends Controller
     }
 
     // GET /admin/applications/{application}
-    // Shows everything the shop sent in. Laravel finds the row from the id (404 if missing).
-    public function show(PartnerApplication $application): View
+    // Shows everything the shop sent in, plus any existing spots that look like the same place.
+    // Laravel finds the row from the id (404 if missing) and builds the finder for us.
+    public function show(PartnerApplication $application, DuplicateSpotFinder $duplicates): View
     {
         return view('admin.applications.show', [
             'application' => $application->load('claimedBy'),
+            'duplicates' => $duplicates->findFor($application),
         ]);
     }
 

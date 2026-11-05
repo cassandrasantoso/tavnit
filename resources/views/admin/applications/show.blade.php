@@ -5,6 +5,20 @@
         <p role="alert">{{ $message }}</p>
     @enderror
 
+    @if ($duplicates->isNotEmpty())
+        <div role="alert">
+            <p><strong>Possible duplicate.</strong> These spots have the same name and are within {{ config('tavnit.review.duplicate_radius_m') }} m:</p>
+            <ul>
+                @foreach ($duplicates as $match)
+                    <li>
+                        <a href="{{ route('admin.refill-spots.edit', $match['spot']) }}">{{ $match['spot']->name }}</a>
+                        ({{ $match['distance_m'] }} m away)
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <h1>{{ $application->store_name }}</h1>
     <p>{{ $application->state->label() }} · sent {{ $application->created_at->diffForHumans() }}</p>
 
