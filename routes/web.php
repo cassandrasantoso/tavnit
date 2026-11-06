@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PartnerApplicationController;
 use App\Http\Controllers\RefillSpotController;
@@ -16,6 +17,10 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [LoginController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
+
+Route::put('/locale', [LocaleController::class, 'update'])
+    ->middleware('auth')
+    ->name('locale.update');
 
 Route::middleware(['auth', EnsureUserIsStaff::class])
     ->prefix('admin')

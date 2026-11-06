@@ -3,6 +3,10 @@
 // Rules for checking a refill (or any check-in at a place). Nothing here is
 // about water, so another project changes these numbers, not the code.
 return [
+    // Interface languages staff can pick in the header.
+    'locales' => ['ja', 'en'],
+    'default_locale' => env('APP_LOCALE', 'en'),
+
     'checkins' => [
         'max_distance_m' => (int) env('TAVNIT_MAX_DISTANCE_M', 200),
         'daily_limit' => (int) env('TAVNIT_DAILY_LIMIT', 10),
