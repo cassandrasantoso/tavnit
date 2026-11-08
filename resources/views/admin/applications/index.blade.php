@@ -24,7 +24,7 @@
             @forelse ($applications as $application)
                 <tr>
                     <td>{{ $application->store_name }}</td>
-                    <td>{{ $application->store_type }}</td>
+                    <td>{{ $application->storeTypeLabel() }}</td>
                     <td>{{ $application->created_at->diffForHumans() }}</td>
                     <td>{{ $application->claimedBy?->name ?? __('ui.none') }}</td>
                     <td><a href="{{ route('admin.applications.show', $application) }}">{{ __('applications.open') }}</a></td>

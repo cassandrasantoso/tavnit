@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Lang;
 
 // Only what the shop fills in. State, claim, version and spot are changed by staff code.
 #[Fillable([
@@ -43,6 +44,14 @@ class PartnerApplication extends Model
             'latitude' => 'decimal:6',
             'longitude' => 'decimal:6',
         ];
+    }
+
+    // The type in the page's language. A type we have no wording for is shown as stored.
+    public function storeTypeLabel(): string
+    {
+        $key = "applications.store_types.{$this->store_type}";
+
+        return Lang::has($key) ? __($key) : $this->store_type;
     }
 
     // The staff member reviewing it right now, if any.

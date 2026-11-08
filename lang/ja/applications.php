@@ -9,6 +9,12 @@ return [
         'sent' => '受付',
         'reviewer' => '担当者',
     ],
+    'store_types' => [
+        'cafe' => 'カフェ',
+        'bakery' => 'ベーカリー',
+        'shop' => '雑貨店',
+        'hotel' => 'ホテル・ゲストハウス',
+    ],
     'open' => '開く',
     'empty' => 'この一覧には何もありません。',
 

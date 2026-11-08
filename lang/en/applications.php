@@ -9,6 +9,12 @@ return [
         'sent' => 'Sent',
         'reviewer' => 'Reviewer',
     ],
+    'store_types' => [
+        'cafe' => 'Cafe',
+        'bakery' => 'Bakery',
+        'shop' => 'General store',
+        'hotel' => 'Hotel or guest house',
+    ],
     'open' => 'Open',
     'empty' => 'Nothing in this list.',
 

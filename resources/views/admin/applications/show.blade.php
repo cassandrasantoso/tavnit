@@ -79,7 +79,7 @@
 
     <dl>
         <dt>{{ __('applications.fields.type') }}</dt>
-        <dd>{{ $application->store_type }}</dd>
+        <dd>{{ $application->storeTypeLabel() }}</dd>
 
         <dt>{{ __('applications.fields.address') }}</dt>
         <dd>{{ $application->address }}</dd>
