@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['name', 'description_ja', 'latitude', 'longitude', 'is_active'])]
+#[Fillable(['name', 'name_kana', 'name_en', 'description_ja', 'latitude', 'longitude', 'is_active'])]
 class RefillSpot extends Model
 {
     /** @use HasFactory<RefillSpotFactory> */

@@ -23,7 +23,7 @@
         <tbody>
             @forelse ($applications as $application)
                 <tr>
-                    <td>{{ $application->store_name }}</td>
+                    <td><x-shop-name :name="$application->store_name" :kana="$application->store_name_kana" :english="$application->store_name_en" /></td>
                     <td>{{ $application->storeTypeLabel() }}</td>
                     <td>{{ $application->created_at->diffForHumans() }}</td>
                     <td>{{ $application->claimedBy?->name ?? __('ui.none') }}</td>

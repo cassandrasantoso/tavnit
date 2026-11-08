@@ -7,6 +7,18 @@
 </div>
 
 <div>
+    <label for="name_kana">{{ __('spots.form.name_kana') }}</label>
+    <input id="name_kana" name="name_kana" value="{{ old('name_kana', $spot->name_kana) }}" maxlength="100" lang="ja">
+    @error('name_kana') <p>{{ $message }}</p> @enderror
+</div>
+
+<div>
+    <label for="name_en">{{ __('spots.form.name_en') }}</label>
+    <input id="name_en" name="name_en" value="{{ old('name_en', $spot->name_en) }}" maxlength="100" lang="en">
+    @error('name_en') <p>{{ $message }}</p> @enderror
+</div>
+
+<div>
     <label for="description_ja">{{ __('spots.form.description') }}</label>
     <textarea id="description_ja" name="description_ja" rows="4">{{ old('description_ja', $spot->description_ja) }}</textarea>
     @error('description_ja') <p>{{ $message }}</p> @enderror

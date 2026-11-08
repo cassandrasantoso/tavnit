@@ -10,4 +10,5 @@ return [
     'language' => 'Language',
     'back_to_list' => 'Back to the list',
     'none' => '—',
+    'reading_hint' => 'How to say the name, from the kana reading the shop gave',
 ];

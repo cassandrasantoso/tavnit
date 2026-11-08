@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\PartnerApplication;
+use App\Support\Romaji;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -12,17 +13,27 @@ class PartnerApplicationFactory extends Factory
 {
     public function definition(): array
     {
-        // Each type with the Japanese word used in its made-up name.
+        // Each type with the Japanese word used in its made-up name, and its kana reading.
         $types = [
-            'cafe' => 'カフェ',
-            'bakery' => 'ベーカリー',
-            'shop' => '雑貨店',
-            'hotel' => 'ゲストハウス',
+            'cafe' => ['カフェ', 'カフェ', 'Cafe'],
+            'bakery' => ['ベーカリー', 'ベーカリー', 'Bakery'],
+            'shop' => ['雑貨店', 'ザッカテン', 'Goods'],
+            'hotel' => ['ゲストハウス', 'ゲストハウス', 'Guesthouse'],
         ];
         $type = fake()->randomKey($types);
+        [$typeJa, $typeKana, $typeEn] = $types[$type];
+
+        // A made-up three-kana word, so names rarely repeat: カフェ ミソラ.
+        $word = implode('', fake()->randomElements(
+            ['ミ', 'ソ', 'ラ', 'ハ', 'ナ', 'カ', 'サ', 'キ', 'ト', 'モ', 'リ', 'ユ', 'メ', 'ア', 'オ', 'タ', 'マ', 'ヒ', 'ル', 'コ'],
+            3,
+        ));
 
         return [
-            'store_name' => $types[$type].' '.fake()->unique()->lexify('????'),
+            'store_name' => $typeJa.' '.$word,
+            'store_name_kana' => $typeKana.' '.$word,
+            // Some shops have an English name they use themselves.
+            'store_name_en' => fake()->boolean(30) ? $typeEn.' '.Romaji::fromKana($word) : null,
             'store_type' => $type,
             'address' => '東京都渋谷区 '.fake()->numberBetween(1, 5).'-'.fake()->numberBetween(1, 30),
             'description_ja' => '店内で給水できます。マイボトルをお持ちください。',

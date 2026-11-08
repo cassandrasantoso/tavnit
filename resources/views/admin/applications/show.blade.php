@@ -11,7 +11,7 @@
             <ul>
                 @foreach ($duplicates as $match)
                     <li>
-                        <a href="{{ route('admin.refill-spots.edit', $match['spot']) }}">{{ $match['spot']->name }}</a>
+                        <a href="{{ route('admin.refill-spots.edit', $match['spot']) }}"><x-shop-name :name="$match['spot']->name" :kana="$match['spot']->name_kana" :english="$match['spot']->name_en" /></a>
                         {{ __('applications.distance', ['distance' => $match['distance_m']]) }}
                     </li>
                 @endforeach
@@ -19,7 +19,7 @@
         </div>
     @endif
 
-    <h1>{{ $application->store_name }}</h1>
+    <h1><x-shop-name :name="$application->store_name" :kana="$application->store_name_kana" :english="$application->store_name_en" /></h1>
     <p>{{ $application->state->label() }} · {{ __('applications.sent', ['time' => $application->created_at->diffForHumans()]) }}</p>
 
     @if ($application->state->canMoveTo(\App\Enums\ApplicationState::InReview))

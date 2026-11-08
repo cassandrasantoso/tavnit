@@ -15,7 +15,7 @@
         <tbody>
             @forelse ($spots as $spot)
                 <tr>
-                    <td>{{ $spot->name }}</td>
+                    <td><x-shop-name :name="$spot->name" :kana="$spot->name_kana" :english="$spot->name_en" /></td>
                     <td>{{ $spot->latitude }}, {{ $spot->longitude }}</td>
                     <td>
                         @if ($spot->trashed())

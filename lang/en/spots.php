@@ -27,6 +27,9 @@ return [
 
     'form' => [
         'name' => 'Name',
+        'name_kana' => 'Reading in kana (optional; put spaces between words)',
+        'name_en' => 'Official English name (optional; only if the shop uses one)',
+        'kana_invalid' => 'Use only hiragana or katakana for the reading.',
         'description' => 'Description (Japanese)',
         'latitude' => 'Latitude',
         'longitude' => 'Longitude',

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Lang;
 
 // Only what the shop fills in. State, claim, version and spot are changed by staff code.
 #[Fillable([
-    'store_name', 'store_type', 'address', 'description_ja', 'hours_note_ja',
+    'store_name', 'store_name_kana', 'store_name_en', 'store_type', 'address', 'description_ja', 'hours_note_ja',
     'message_ja', 'opening_date', 'contact_email', 'latitude', 'longitude',
 ])]
 class PartnerApplication extends Model

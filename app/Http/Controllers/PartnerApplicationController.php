@@ -180,6 +180,8 @@ class PartnerApplicationController extends Controller
 
             $spot = RefillSpot::create([
                 'name' => self::tidyName($current->store_name),
+                'name_kana' => $current->store_name_kana,
+                'name_en' => $current->store_name_en,
                 'description_ja' => $current->description_ja,
                 'latitude' => $current->latitude,
                 'longitude' => $current->longitude,

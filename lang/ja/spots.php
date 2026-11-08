@@ -27,6 +27,9 @@ return [
 
     'form' => [
         'name' => '名前',
+        'name_kana' => '読み仮名（任意・単語の間にスペース）',
+        'name_en' => '公式の英語名（任意・店舗が使っている場合のみ）',
+        'kana_invalid' => '読み仮名はひらがなかカタカナで入力してください。',
         'description' => '説明（日本語）',
         'latitude' => '緯度',
         'longitude' => '経度',

@@ -10,4 +10,5 @@ return [
     'language' => '言語',
     'back_to_list' => '一覧に戻る',
     'none' => '—',
+    'reading_hint' => '店舗が入力した読み仮名から作ったローマ字表記',
 ];
