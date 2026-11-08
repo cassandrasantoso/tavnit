@@ -1,5 +1,5 @@
-<x-layout title="Partner applications">
-    <h1>Partner applications</h1>
+<x-layout :title="__('applications.title')">
+    <h1>{{ __('applications.title') }}</h1>
 
     <nav>
         @foreach ($states as $tab)
@@ -13,10 +13,10 @@
     <table>
         <thead>
             <tr>
-                <th>Shop</th>
-                <th>Type</th>
-                <th>Sent</th>
-                <th>Reviewer</th>
+                <th>{{ __('applications.columns.shop') }}</th>
+                <th>{{ __('applications.columns.type') }}</th>
+                <th>{{ __('applications.columns.sent') }}</th>
+                <th>{{ __('applications.columns.reviewer') }}</th>
                 <th></th>
             </tr>
         </thead>
@@ -26,12 +26,12 @@
                     <td>{{ $application->store_name }}</td>
                     <td>{{ $application->store_type }}</td>
                     <td>{{ $application->created_at->diffForHumans() }}</td>
-                    <td>{{ $application->claimedBy?->name ?? '—' }}</td>
-                    <td><a href="{{ route('admin.applications.show', $application) }}">Open</a></td>
+                    <td>{{ $application->claimedBy?->name ?? __('ui.none') }}</td>
+                    <td><a href="{{ route('admin.applications.show', $application) }}">{{ __('applications.open') }}</a></td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5">Nothing in this list.</td>
+                    <td colspan="5">{{ __('applications.empty') }}</td>
                 </tr>
             @endforelse
         </tbody>

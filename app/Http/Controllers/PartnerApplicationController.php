@@ -66,7 +66,7 @@ class PartnerApplicationController extends Controller
 
         // The enum decides which moves are allowed (only Submitted can go to In review).
         if (! $application->state->canMoveTo(ApplicationState::InReview)) {
-            return back()->withErrors(['application' => 'This application is not waiting for a reviewer any more.']);
+            return back()->withErrors(['application' => __('applications.errors.not_waiting')]);
         }
 
         // One UPDATE that only matches if nobody changed the row since the page was loaded,
@@ -92,11 +92,11 @@ class PartnerApplicationController extends Controller
         });
 
         if ($changed === 0) {
-            return back()->withErrors(['application' => 'Someone else changed this application first. Reload the page to see the latest.']);
+            return back()->withErrors(['application' => __('applications.errors.changed')]);
         }
 
         return redirect()->route('admin.applications.show', $application)
-            ->with('status', 'You are now reviewing this application.');
+            ->with('status', __('applications.flash.claimed'));
     }
 
     // POST /admin/applications/{application}/decide
@@ -118,11 +118,11 @@ class PartnerApplicationController extends Controller
         $next = ApplicationState::from($data['decision']);
 
         if (! $application->claimedBy?->is($request->user())) {
-            return back()->withErrors(['application' => 'Only the staff member reviewing this application can decide on it.']);
+            return back()->withErrors(['application' => __('applications.errors.not_reviewer')]);
         }
 
         if (! $application->state->canMoveTo($next)) {
-            return back()->withErrors(['application' => "This application can't be decided right now."]);
+            return back()->withErrors(['application' => __('applications.errors.cannot_decide')]);
         }
 
         $changed = DB::transaction(function () use ($request, $application, $data, $next) {
@@ -144,11 +144,11 @@ class PartnerApplicationController extends Controller
         });
 
         if ($changed === 0) {
-            return back()->withErrors(['application' => 'Someone else changed this application first. Reload the page to see the latest.']);
+            return back()->withErrors(['application' => __('applications.errors.changed')]);
         }
 
         return redirect()->route('admin.applications.show', $application)
-            ->with('status', "Decision saved: {$next->label()}.");
+            ->with('status', __('applications.flash.decided', ['state' => $next->label()]));
     }
 
     // POST /admin/applications/{application}/publish
@@ -162,11 +162,11 @@ class PartnerApplicationController extends Controller
         ]);
 
         if (! $application->state->canMoveTo(ApplicationState::Published)) {
-            return back()->withErrors(['application' => 'Only approved applications can be published.']);
+            return back()->withErrors(['application' => __('applications.errors.not_approved')]);
         }
 
         if ($duplicates->findFor($application)->isNotEmpty() && ! $request->boolean('confirm_duplicate')) {
-            return back()->withErrors(['confirm_duplicate' => 'This looks like an existing spot. Tick the box to publish it anyway.']);
+            return back()->withErrors(['confirm_duplicate' => __('applications.errors.confirm_duplicate')]);
         }
 
         // Lock the row, check nothing changed, then create the spot, update the application
@@ -202,11 +202,11 @@ class PartnerApplicationController extends Controller
         });
 
         if ($spot === null) {
-            return back()->withErrors(['application' => 'Someone else changed this application first. Reload the page to see the latest.']);
+            return back()->withErrors(['application' => __('applications.errors.changed')]);
         }
 
         return redirect()->route('admin.applications.show', $application)
-            ->with('status', "Published as {$spot->name}.");
+            ->with('status', __('applications.flash.published', ['name' => $spot->name]));
     }
 
     // Removes spaces at both ends, including the full-width space (U+3000).

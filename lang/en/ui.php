@@ -8,4 +8,6 @@ return [
     ],
     'log_out' => 'Log out',
     'language' => 'Language',
+    'back_to_list' => 'Back to the list',
+    'none' => '—',
 ];

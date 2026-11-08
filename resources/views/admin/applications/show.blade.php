@@ -1,5 +1,5 @@
 <x-layout :title="$application->store_name">
-    <p><a href="{{ route('admin.applications.index', ['state' => $application->state->value]) }}">Back to the list</a></p>
+    <p><a href="{{ route('admin.applications.index', ['state' => $application->state->value]) }}">{{ __('ui.back_to_list') }}</a></p>
 
     @error('application')
         <p role="alert">{{ $message }}</p>
@@ -7,12 +7,12 @@
 
     @if ($duplicates->isNotEmpty())
         <div role="alert">
-            <p><strong>Possible duplicate.</strong> These spots have the same name and are within {{ config('tavnit.review.duplicate_radius_m') }} m:</p>
+            <p><strong>{{ __('applications.duplicate_title') }}</strong> {{ __('applications.duplicate_intro', ['radius' => config('tavnit.review.duplicate_radius_m')]) }}</p>
             <ul>
                 @foreach ($duplicates as $match)
                     <li>
                         <a href="{{ route('admin.refill-spots.edit', $match['spot']) }}">{{ $match['spot']->name }}</a>
-                        ({{ $match['distance_m'] }} m away)
+                        {{ __('applications.distance', ['distance' => $match['distance_m']]) }}
                     </li>
                 @endforeach
             </ul>
@@ -20,14 +20,14 @@
     @endif
 
     <h1>{{ $application->store_name }}</h1>
-    <p>{{ $application->state->label() }} · sent {{ $application->created_at->diffForHumans() }}</p>
+    <p>{{ $application->state->label() }} · {{ __('applications.sent', ['time' => $application->created_at->diffForHumans()]) }}</p>
 
     @if ($application->state->canMoveTo(\App\Enums\ApplicationState::InReview))
         <form method="POST" action="{{ route('admin.applications.claim', $application) }}">
             @csrf
             {{-- The version this page was loaded with. The claim only works if it still matches. --}}
             <input type="hidden" name="version" value="{{ $application->version }}">
-            <button type="submit">Claim</button>
+            <button type="submit">{{ __('applications.claim') }}</button>
         </form>
     @endif
 
@@ -37,27 +37,27 @@
             <input type="hidden" name="version" value="{{ $application->version }}">
 
             <fieldset>
-                <legend>Decision</legend>
-                <label><input type="radio" name="decision" value="approved" @checked(old('decision') === 'approved')> Approve</label>
-                <label><input type="radio" name="decision" value="returned" @checked(old('decision') === 'returned')> Send back to the shop</label>
-                <label><input type="radio" name="decision" value="rejected" @checked(old('decision') === 'rejected')> Reject</label>
+                <legend>{{ __('applications.decision') }}</legend>
+                <label><input type="radio" name="decision" value="approved" @checked(old('decision') === 'approved')> {{ __('applications.decisions.approved') }}</label>
+                <label><input type="radio" name="decision" value="returned" @checked(old('decision') === 'returned')> {{ __('applications.decisions.returned') }}</label>
+                <label><input type="radio" name="decision" value="rejected" @checked(old('decision') === 'rejected')> {{ __('applications.decisions.rejected') }}</label>
                 @error('decision') <p role="alert">{{ $message }}</p> @enderror
             </fieldset>
 
-            <label for="reason">Reason (needed to send back or reject)</label>
+            <label for="reason">{{ __('applications.reason_label') }}</label>
             <select id="reason" name="reason">
-                <option value="">—</option>
+                <option value="">{{ __('ui.none') }}</option>
                 @foreach (config('tavnit.review.reasons') as $code)
                     <option value="{{ $code }}" @selected(old('reason') === $code)>{{ __("review.reasons.$code") }}</option>
                 @endforeach
             </select>
             @error('reason') <p role="alert">{{ $message }}</p> @enderror
 
-            <label for="note">Note (needed if the reason is "Other")</label>
+            <label for="note">{{ __('applications.note_label') }}</label>
             <textarea id="note" name="note" rows="3">{{ old('note') }}</textarea>
             @error('note') <p role="alert">{{ $message }}</p> @enderror
 
-            <button type="submit">Save decision</button>
+            <button type="submit">{{ __('applications.save_decision') }}</button>
         </form>
     @endif
 
@@ -66,62 +66,62 @@
             @csrf
             <input type="hidden" name="version" value="{{ $application->version }}">
             @if ($duplicates->isNotEmpty())
-                <label><input type="checkbox" name="confirm_duplicate" value="1"> Publish anyway: it is not the same place</label>
+                <label><input type="checkbox" name="confirm_duplicate" value="1"> {{ __('applications.publish_anyway') }}</label>
             @endif
             @error('confirm_duplicate') <p role="alert">{{ $message }}</p> @enderror
-            <button type="submit">Publish as a refill spot</button>
+            <button type="submit">{{ __('applications.publish') }}</button>
         </form>
     @endif
 
     @if ($application->spot)
-        <p>Published as <a href="{{ route('admin.refill-spots.edit', $application->spot) }}">{{ $application->spot->name }}</a>.</p>
+        <p>{{ __('applications.published_as') }} <a href="{{ route('admin.refill-spots.edit', $application->spot) }}">{{ $application->spot->name }}</a></p>
     @endif
 
     <dl>
-        <dt>Type</dt>
+        <dt>{{ __('applications.fields.type') }}</dt>
         <dd>{{ $application->store_type }}</dd>
 
-        <dt>Address</dt>
+        <dt>{{ __('applications.fields.address') }}</dt>
         <dd>{{ $application->address }}</dd>
 
-        <dt>Location</dt>
+        <dt>{{ __('applications.fields.location') }}</dt>
         <dd>{{ $application->latitude }}, {{ $application->longitude }}</dd>
 
-        <dt>Description</dt>
-        <dd style="white-space: pre-line">{{ $application->description_ja ?? '—' }}</dd>
+        <dt>{{ __('applications.fields.description') }}</dt>
+        <dd style="white-space: pre-line">{{ $application->description_ja ?? __('ui.none') }}</dd>
 
-        <dt>Opening hours</dt>
-        <dd style="white-space: pre-line">{{ $application->hours_note_ja ?? '—' }}</dd>
+        <dt>{{ __('applications.fields.hours') }}</dt>
+        <dd style="white-space: pre-line">{{ $application->hours_note_ja ?? __('ui.none') }}</dd>
 
-        <dt>Message from the shop</dt>
-        <dd style="white-space: pre-line">{{ $application->message_ja ?? '—' }}</dd>
+        <dt>{{ __('applications.fields.message') }}</dt>
+        <dd style="white-space: pre-line">{{ $application->message_ja ?? __('ui.none') }}</dd>
 
-        <dt>Opening date</dt>
-        <dd>{{ $application->opening_date?->toDateString() ?? '—' }}</dd>
+        <dt>{{ __('applications.fields.opening_date') }}</dt>
+        <dd>{{ $application->opening_date?->toDateString() ?? __('ui.none') }}</dd>
 
-        <dt>Contact</dt>
+        <dt>{{ __('applications.fields.contact') }}</dt>
         <dd>{{ $application->contact_email }}</dd>
 
-        <dt>Reviewer</dt>
-        <dd>{{ $application->claimedBy?->name ?? 'Nobody yet' }}</dd>
+        <dt>{{ __('applications.fields.reviewer') }}</dt>
+        <dd>{{ $application->claimedBy?->name ?? __('applications.nobody') }}</dd>
     </dl>
 
-    <h2>History</h2>
+    <h2>{{ __('applications.history') }}</h2>
     <ol>
         @forelse ($application->stateChanges as $change)
             <li>
-                {{ $change->created_at->format('Y-m-d H:i') }} · {{ $change->user?->name ?? 'Someone' }}:
+                {{ $change->created_at->format('Y-m-d H:i') }} · {{ $change->user?->name ?? __('applications.someone') }}:
                 {{ $change->from_state->label() }} → {{ $change->to_state->label() }}
                 @if ($change->reason)
                     · {{ __("review.reasons.{$change->reason}") }}
-                    ({{ __("review.reasons.{$change->reason}", [], 'ja') }})
+                    ({{ __("review.reasons.{$change->reason}", [], app()->getLocale() === 'ja' ? 'en' : 'ja') }})
                 @endif
                 @if ($change->note)
                     <div style="white-space: pre-line">{{ $change->note }}</div>
                 @endif
             </li>
         @empty
-            <li>No changes yet.</li>
+            <li>{{ __('applications.no_changes') }}</li>
         @endforelse
     </ol>
 </x-layout>

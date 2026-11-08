@@ -8,4 +8,6 @@ return [
     ],
     'log_out' => 'ログアウト',
     'language' => '言語',
+    'back_to_list' => '一覧に戻る',
+    'none' => '—',
 ];

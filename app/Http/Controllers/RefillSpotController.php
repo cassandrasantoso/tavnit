@@ -41,7 +41,7 @@ class RefillSpotController extends Controller
         $spot = RefillSpot::create($request->validated());
 
         return redirect()->route('admin.refill-spots.index')
-            ->with('status', "Added {$spot->name}.");
+            ->with('status', __('spots.flash.added', ['name' => $spot->name]));
     }
 
     // GET /admin/refill-spots/{refill_spot}/edit
@@ -59,7 +59,7 @@ class RefillSpotController extends Controller
         $refillSpot->update($request->validated());
 
         return redirect()->route('admin.refill-spots.index')
-            ->with('status', "Saved {$refillSpot->name}.");
+            ->with('status', __('spots.flash.saved', ['name' => $refillSpot->name]));
     }
 
     // DELETE /admin/refill-spots/{refill_spot}
@@ -70,7 +70,7 @@ class RefillSpotController extends Controller
         $refillSpot->delete();
 
         return redirect()->route('admin.refill-spots.index')
-            ->with('status', "Removed {$refillSpot->name}. You can restore it from the list.");
+            ->with('status', __('spots.flash.removed', ['name' => $refillSpot->name]));
     }
 
     // POST /admin/refill-spots/{refill_spot}/restore
@@ -81,6 +81,6 @@ class RefillSpotController extends Controller
         $refillSpot->restore();
 
         return redirect()->route('admin.refill-spots.index')
-            ->with('status', "Restored {$refillSpot->name}.");
+            ->with('status', __('spots.flash.restored', ['name' => $refillSpot->name]));
     }
 }

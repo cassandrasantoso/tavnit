@@ -29,7 +29,7 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Those details don\'t match a staff account.',
+            'email' => __('login.failed'),
         ])->onlyInput('email');
     }
 
