@@ -6,6 +6,7 @@ use App\Enums\ApplicationState;
 use App\Models\PartnerApplication;
 use App\Models\RefillSpot;
 use App\Services\DuplicateSpotFinder;
+use App\Services\FieldTranslator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -49,11 +50,20 @@ class PartnerApplicationController extends Controller
     // GET /admin/applications/{application}
     // Shows everything the shop sent in, plus any existing spots that look like the same place.
     // Laravel finds the row from the id (404 if missing) and builds the finder for us.
-    public function show(PartnerApplication $application, DuplicateSpotFinder $duplicates): View
+    public function show(PartnerApplication $application, DuplicateSpotFinder $duplicates, FieldTranslator $translator): View
     {
+        $application->load(['claimedBy', 'spot', 'stateChanges.user', 'translations']);
+
+        // Staff reading in English get the shop's free text in English too.
+        // If Google can't help right now, the page still opens, in Japanese.
+        $machineTranslated = app()->getLocale() !== 'ja';
+        $translationMissing = $machineTranslated && ! $translator->ensure($application, app()->getLocale());
+
         return view('admin.applications.show', [
-            'application' => $application->load(['claimedBy', 'spot', 'stateChanges.user']),
+            'application' => $application,
             'duplicates' => $duplicates->findFor($application),
+            'machineTranslated' => $machineTranslated,
+            'translationMissing' => $translationMissing,
         ]);
     }
 

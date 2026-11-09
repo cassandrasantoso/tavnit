@@ -1,6 +1,13 @@
 <x-layout :title="$application->store_name">
     <p><a href="{{ route('admin.applications.index', ['state' => $application->state->value]) }}">{{ __('ui.back_to_list') }}</a></p>
 
+    @if ($machineTranslated)
+        <p role="note">{{ __('ui.machine_translation_banner') }}</p>
+    @endif
+    @if ($translationMissing)
+        <p role="status">{{ __('ui.translation_unavailable') }}</p>
+    @endif
+
     @error('application')
         <p role="alert">{{ $message }}</p>
     @enderror
@@ -88,13 +95,13 @@
         <dd>{{ $application->latitude }}, {{ $application->longitude }}</dd>
 
         <dt>{{ __('applications.fields.description') }}</dt>
-        <dd style="white-space: pre-line">{{ $application->description_ja ?? __('ui.none') }}</dd>
+        <dd><x-translated-text :record="$application" field="description_ja" /></dd>
 
         <dt>{{ __('applications.fields.hours') }}</dt>
-        <dd style="white-space: pre-line">{{ $application->hours_note_ja ?? __('ui.none') }}</dd>
+        <dd><x-translated-text :record="$application" field="hours_note_ja" /></dd>
 
         <dt>{{ __('applications.fields.message') }}</dt>
-        <dd style="white-space: pre-line">{{ $application->message_ja ?? __('ui.none') }}</dd>
+        <dd><x-translated-text :record="$application" field="message_ja" /></dd>
 
         <dt>{{ __('applications.fields.opening_date') }}</dt>
         <dd>{{ $application->opening_date?->toDateString() ?? __('ui.none') }}</dd>

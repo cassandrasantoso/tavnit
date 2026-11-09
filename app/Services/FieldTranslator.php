@@ -46,6 +46,11 @@ class FieldTranslator
             return true;
         }
 
+        // No Google project set (for example on a fresh local copy): show the Japanese.
+        if (blank(config('services.google_translate.project'))) {
+            return false;
+        }
+
         $texts = array_column($missing, 'original');
         $characters = array_sum(array_map('mb_strlen', $texts));
 
