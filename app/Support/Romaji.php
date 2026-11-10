@@ -4,7 +4,7 @@ namespace App\Support;
 
 /**
  * Turns a kana reading into Latin letters (Hepburn), so staff who don't
- * read Japanese can say a shop's name: シモキタザワ ノ カフェ → Shimokitazawa No Kafe.
+ * read Japanese can say a shop's name: シモキタザワ ノ カフェ → Shimokitazawa no Kafe.
  *
  * Kana follows fixed rules, so this needs no API. Kanji has no single
  * reading, which is why the shop gives us the kana and we never guess it.
@@ -59,6 +59,9 @@ class Romaji
 
     private const MACRONS = ['a' => 'ā', 'i' => 'ī', 'u' => 'ū', 'e' => 'ē', 'o' => 'ō'];
 
+    // Small particles stay lowercase inside a name, as in "Shimokitazawa no Kafe".
+    private const PARTICLES = ['no', 'ni', 'de', 'to', 'ga', 'o', 'ya', 'mo'];
+
     public static function fromKana(string $kana): string
     {
         // Half-width katakana and full-width spaces/letters to their usual
@@ -109,12 +112,16 @@ class Romaji
             }
         }
 
-        // One space between words, each word starting with a capital.
+        // One space between words, each word starting with a capital,
+        // except particles after the first word.
         $words = preg_split('/\s+/u', trim($text), -1, PREG_SPLIT_NO_EMPTY);
 
         return implode(' ', array_map(
-            fn (string $word) => mb_strtoupper(mb_substr($word, 0, 1)).mb_substr($word, 1),
+            fn (string $word, int $position) => $position > 0 && in_array($word, self::PARTICLES, true)
+                ? $word
+                : mb_strtoupper(mb_substr($word, 0, 1)).mb_substr($word, 1),
             $words,
+            array_keys($words),
         ));
     }
 

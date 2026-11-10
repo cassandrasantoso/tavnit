@@ -5,7 +5,9 @@ use App\Support\Romaji;
 test('kana readings become Latin letters', function (string $kana, string $latin) {
     expect(Romaji::fromKana($kana))->toBe($latin);
 })->with([
-    'words with spaces' => ['シモキタザワ ノ カフェ', 'Shimokitazawa No Kafe'],
+    'words with spaces' => ['シモキタザワ ノ カフェ', 'Shimokitazawa no Kafe'],
+    'a particle as the first word keeps its capital' => ['ノ カフェ', 'No Kafe'],
+    'other particles stay lowercase' => ['ハナ ト ミズ', 'Hana to Mizu'],
     'hiragana' => ['しぶや', 'Shibuya'],
     'long vowel mark' => ['ラーメン', 'Rāmen'],
     'small tsu' => ['きって', 'Kitte'],

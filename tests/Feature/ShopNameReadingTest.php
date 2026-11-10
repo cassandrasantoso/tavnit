@@ -18,7 +18,7 @@ test('in English, a name shows its reading and English name, never a translation
 
     $this->actingAs($this->staff)
         ->get(route('admin.refill-spots.index'))
-        ->assertSeeInOrder(['下北沢のカフェ', 'Shimokitazawa No Kafe', 'Shimokita Cafe']);
+        ->assertSeeInOrder(['下北沢のカフェ', 'Shimokitazawa no Kafe', 'Shimokita Cafe']);
 });
 
 test('in Japanese, a name shows its kana instead', function () {
