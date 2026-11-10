@@ -60,6 +60,8 @@ class FieldTranslator
             return false;
         }
 
+        $start = hrtime(true);
+
         try {
             $results = $this->translator->translateMany(
                 $texts, 'ja', $locale, config('tavnit.translation.timeout_seconds'),
@@ -71,6 +73,12 @@ class FieldTranslator
         }
 
         $this->countCharacters($characters);
+
+        Log::channel('timing')->info('translation', [
+            'fields' => count($missing),
+            'characters' => $characters,
+            'ms' => round((hrtime(true) - $start) / 1_000_000, 1),
+        ]);
 
         foreach ($missing as $i => $item) {
             $usedGlossary = $results[$i]['glossary'] !== null;

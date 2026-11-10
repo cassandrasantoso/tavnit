@@ -73,6 +73,15 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Response times for API requests and translations (see LogResponseTime).
+        'timing' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/timing.log'),
+            'level' => 'info',
+            'max_files' => env('LOG_TIMING_DAYS', 7),
+            'replace_placeholders' => true,
+        ],
+
         'monthly' => [
             'driver' => 'monthly',
             'path' => storage_path('logs/laravel.log'),
