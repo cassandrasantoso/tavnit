@@ -1,0 +1,43 @@
+{
+    "_about": "Made-up cases for php artisan eval. Add a case whenever a rule surprises you.",
+
+    "readings": [
+        {"kana": "シモキタザワ ノ カフェ", "expected": "Shimokitazawa no Kafe"},
+        {"kana": "ヨヨギ ノ ラーメンテン", "expected": "Yoyogi no Rāmenten"},
+        {"kana": "ナカメグロ ノ ホンヤ", "expected": "Nakameguro no Hon'ya"},
+        {"kana": "マッチャ ト ミズ", "expected": "Matcha to Mizu"},
+        {"kana": "きっさ はなび", "expected": "Kissa Hanabi"},
+        {"kana": "ｶﾌｪ ﾐｽﾞ", "expected": "Kafe Mizu"},
+        {"kana": "ヴィーガン ショップ", "expected": "Vīgan Shoppu"},
+        {"kana": "ティー・ルーム", "expected": "Tī Rūmu"},
+        {"kana": "オモテサンドウ", "expected": "Omotesandō", "note": "Known limit: ウ after o stays \"ou\"."},
+        {"kana": "コンニチハ カフェ", "expected": "Konnichiwa Kafe", "note": "Known limit: は as a particle stays \"ha\"."}
+    ],
+
+    "duplicates": [
+        {"case": "Same name with a full-width space, 20 m away", "spot": "渋谷のカフェ", "application": "渋谷のカフェ　", "metres": 20, "expected": true},
+        {"case": "Half-width katakana, 30 m away", "spot": "カフェ ミズ", "application": "ｶﾌｪ ﾐｽﾞ", "metres": 30, "expected": true},
+        {"case": "Full-width letters, 10 m away", "spot": "ABC ベーカリー", "application": "ＡＢＣ　ベーカリー", "metres": 10, "expected": true},
+        {"case": "Same name, 60 m away (a second branch)", "spot": "渋谷のカフェ", "application": "渋谷のカフェ", "metres": 60, "expected": false},
+        {"case": "Different name, 10 m away (two shops in one building)", "spot": "渋谷のカフェ", "application": "渋谷の本屋", "metres": 10, "expected": false},
+        {"case": "Hiragana vs katakana spelling, 15 m away", "spot": "カフェ ミズ", "application": "かふぇ みず", "metres": 15, "expected": true, "note": "Known limit: the rule doesn't treat hiragana and katakana as the same."}
+    ],
+
+    "refills": [
+        {"case": "199 m from the spot", "metres": 199, "at": "2026-11-02 12:00", "earlier": [], "expected": "confirmed"},
+        {"case": "201 m from the spot", "metres": 201, "at": "2026-11-02 12:00", "earlier": [], "expected": "too_far"},
+        {"case": "Same spot again after 4 minutes", "metres": 10, "at": "2026-11-02 12:04", "earlier": [{"at": "2026-11-02 12:00", "same_spot": true}], "expected": "duplicate"},
+        {"case": "Same spot again after 6 minutes", "metres": 10, "at": "2026-11-02 12:06", "earlier": [{"at": "2026-11-02 12:00", "same_spot": true}], "expected": "confirmed"},
+        {"case": "Another spot 1 minute later", "metres": 10, "at": "2026-11-02 12:01", "earlier": [{"at": "2026-11-02 12:00", "same_spot": false}], "expected": "confirmed"},
+        {"case": "11th refill of the day", "metres": 10, "at": "2026-11-02 20:00", "earlier_count": 10, "earlier_from": "2026-11-02 09:00", "expected": "daily_limit"},
+        {"case": "First refill after midnight in Tokyo, 10 the day before", "metres": 10, "at": "2026-11-03 00:05", "earlier_count": 10, "earlier_from": "2026-11-02 12:00", "expected": "confirmed"}
+    ],
+
+    "glossary": [
+        {"ja": "マイボトルをお持ちください。", "term": "reusable bottle"},
+        {"ja": "給水スポットとして登録したいです。", "term": "refill spot"},
+        {"ja": "ペットボトルの水は販売していません。", "term": "plastic bottle"},
+        {"ja": "給水パートナーになりたいです。", "term": "refill partner"},
+        {"ja": "申請は差し戻しになりました。", "term": "returned for revision"}
+    ]
+}

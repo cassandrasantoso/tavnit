@@ -17,11 +17,22 @@ class RefillSpotFactory extends Factory
      */
     public function definition(): array
     {
-        $areas = ['渋谷', '原宿', '恵比寿', '代々木', '中目黒', '下北沢', '表参道'];
-        $types = ['カフェ', 'ベーカリー', '本屋', 'ギャラリー', 'ラーメン店', '公園'];
+        // Made-up names, each part with its kana reading.
+        $areas = [
+            '渋谷' => 'シブヤ', '原宿' => 'ハラジュク', '恵比寿' => 'エビス', '代々木' => 'ヨヨギ',
+            '中目黒' => 'ナカメグロ', '下北沢' => 'シモキタザワ', '表参道' => 'オモテサンドウ',
+        ];
+        $types = [
+            'カフェ' => 'カフェ', 'ベーカリー' => 'ベーカリー', '本屋' => 'ホンヤ',
+            'ギャラリー' => 'ギャラリー', 'ラーメン店' => 'ラーメンテン', '公園' => 'コウエン',
+        ];
+        $area = fake()->randomKey($areas);
+        $type = fake()->randomKey($types);
 
         return [
-            'name' => fake()->randomElement($areas).'の'.fake()->randomElement($types),
+            'name' => $area.'の'.$type,
+            'name_kana' => $areas[$area].' ノ '.$types[$type],
+            'name_en' => null,
             'description_ja' => fake()->randomElement([
                 'マイボトルを持参すれば、無料でお水を入れられます。',
                 '店内のスタッフに声をかけてください。',

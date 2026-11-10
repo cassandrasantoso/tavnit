@@ -38,13 +38,7 @@ enum ApplicationState: string
     // Short name for the review screens (Japanese labels come later, in lang/ja).
     public function label(): string
     {
-        return match ($this) {
-            self::Submitted => 'Submitted',
-            self::InReview => 'In review',
-            self::Returned => 'Sent back',
-            self::Approved => 'Approved',
-            self::Rejected => 'Rejected',
-            self::Published => 'Published',
-        };
+        // The wording lives in lang/en/review.php and lang/ja/review.php.
+        return __("review.states.{$this->value}");
     }
 }

@@ -3,6 +3,10 @@
 // Rules for checking a refill (or any check-in at a place). Nothing here is
 // about water, so another project changes these numbers, not the code.
 return [
+    // Interface languages staff can pick in the header.
+    'locales' => ['ja', 'en'],
+    'default_locale' => env('APP_LOCALE', 'en'),
+
     'checkins' => [
         'max_distance_m' => (int) env('TAVNIT_MAX_DISTANCE_M', 200),
         'daily_limit' => (int) env('TAVNIT_DAILY_LIMIT', 10),
@@ -17,6 +21,15 @@ return [
         // Reasons staff can give when sending an application back or rejecting it.
         // The wording lives in lang/en/review.php and lang/ja/review.php.
         'reasons' => ['address_unconfirmed', 'possible_duplicate', 'missing_information', 'other'],
+    ],
+
+    'translation' => [
+        // How long a page waits for Google before showing the Japanese instead.
+        'timeout_seconds' => (int) env('TAVNIT_TRANSLATION_TIMEOUT', 5),
+
+        // Stop calling Google after this many characters in a month
+        // (kept below Google's free 500,000 so a mistake can't cost money).
+        'monthly_char_limit' => (int) env('TAVNIT_TRANSLATION_MONTHLY_LIMIT', 400000),
     ],
 
     'stats' => [

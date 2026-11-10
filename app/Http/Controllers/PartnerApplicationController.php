@@ -6,6 +6,7 @@ use App\Enums\ApplicationState;
 use App\Models\PartnerApplication;
 use App\Models\RefillSpot;
 use App\Services\DuplicateSpotFinder;
+use App\Services\FieldTranslator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -49,11 +50,20 @@ class PartnerApplicationController extends Controller
     // GET /admin/applications/{application}
     // Shows everything the shop sent in, plus any existing spots that look like the same place.
     // Laravel finds the row from the id (404 if missing) and builds the finder for us.
-    public function show(PartnerApplication $application, DuplicateSpotFinder $duplicates): View
+    public function show(PartnerApplication $application, DuplicateSpotFinder $duplicates, FieldTranslator $translator): View
     {
+        $application->load(['claimedBy', 'spot', 'stateChanges.user', 'translations']);
+
+        // Staff reading in English get the shop's free text in English too.
+        // If Google can't help right now, the page still opens, in Japanese.
+        $machineTranslated = app()->getLocale() !== 'ja';
+        $translationMissing = $machineTranslated && ! $translator->ensure($application, app()->getLocale());
+
         return view('admin.applications.show', [
-            'application' => $application->load(['claimedBy', 'spot', 'stateChanges.user']),
+            'application' => $application,
             'duplicates' => $duplicates->findFor($application),
+            'machineTranslated' => $machineTranslated,
+            'translationMissing' => $translationMissing,
         ]);
     }
 
@@ -66,7 +76,7 @@ class PartnerApplicationController extends Controller
 
         // The enum decides which moves are allowed (only Submitted can go to In review).
         if (! $application->state->canMoveTo(ApplicationState::InReview)) {
-            return back()->withErrors(['application' => 'This application is not waiting for a reviewer any more.']);
+            return back()->withErrors(['application' => __('applications.errors.not_waiting')]);
         }
 
         // One UPDATE that only matches if nobody changed the row since the page was loaded,
@@ -92,11 +102,11 @@ class PartnerApplicationController extends Controller
         });
 
         if ($changed === 0) {
-            return back()->withErrors(['application' => 'Someone else changed this application first. Reload the page to see the latest.']);
+            return back()->withErrors(['application' => __('applications.errors.changed')]);
         }
 
         return redirect()->route('admin.applications.show', $application)
-            ->with('status', 'You are now reviewing this application.');
+            ->with('status', __('applications.flash.claimed'));
     }
 
     // POST /admin/applications/{application}/decide
@@ -118,11 +128,11 @@ class PartnerApplicationController extends Controller
         $next = ApplicationState::from($data['decision']);
 
         if (! $application->claimedBy?->is($request->user())) {
-            return back()->withErrors(['application' => 'Only the staff member reviewing this application can decide on it.']);
+            return back()->withErrors(['application' => __('applications.errors.not_reviewer')]);
         }
 
         if (! $application->state->canMoveTo($next)) {
-            return back()->withErrors(['application' => "This application can't be decided right now."]);
+            return back()->withErrors(['application' => __('applications.errors.cannot_decide')]);
         }
 
         $changed = DB::transaction(function () use ($request, $application, $data, $next) {
@@ -144,11 +154,11 @@ class PartnerApplicationController extends Controller
         });
 
         if ($changed === 0) {
-            return back()->withErrors(['application' => 'Someone else changed this application first. Reload the page to see the latest.']);
+            return back()->withErrors(['application' => __('applications.errors.changed')]);
         }
 
         return redirect()->route('admin.applications.show', $application)
-            ->with('status', "Decision saved: {$next->label()}.");
+            ->with('status', __('applications.flash.decided', ['state' => $next->label()]));
     }
 
     // POST /admin/applications/{application}/publish
@@ -162,11 +172,11 @@ class PartnerApplicationController extends Controller
         ]);
 
         if (! $application->state->canMoveTo(ApplicationState::Published)) {
-            return back()->withErrors(['application' => 'Only approved applications can be published.']);
+            return back()->withErrors(['application' => __('applications.errors.not_approved')]);
         }
 
         if ($duplicates->findFor($application)->isNotEmpty() && ! $request->boolean('confirm_duplicate')) {
-            return back()->withErrors(['confirm_duplicate' => 'This looks like an existing spot. Tick the box to publish it anyway.']);
+            return back()->withErrors(['confirm_duplicate' => __('applications.errors.confirm_duplicate')]);
         }
 
         // Lock the row, check nothing changed, then create the spot, update the application
@@ -180,6 +190,8 @@ class PartnerApplicationController extends Controller
 
             $spot = RefillSpot::create([
                 'name' => self::tidyName($current->store_name),
+                'name_kana' => $current->store_name_kana,
+                'name_en' => $current->store_name_en,
                 'description_ja' => $current->description_ja,
                 'latitude' => $current->latitude,
                 'longitude' => $current->longitude,
@@ -202,11 +214,11 @@ class PartnerApplicationController extends Controller
         });
 
         if ($spot === null) {
-            return back()->withErrors(['application' => 'Someone else changed this application first. Reload the page to see the latest.']);
+            return back()->withErrors(['application' => __('applications.errors.changed')]);
         }
 
         return redirect()->route('admin.applications.show', $application)
-            ->with('status', "Published as {$spot->name}.");
+            ->with('status', __('applications.flash.published', ['name' => $spot->name]));
     }
 
     // Removes spaces at both ends, including the full-width space (U+3000).

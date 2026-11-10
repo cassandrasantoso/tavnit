@@ -1,51 +1,51 @@
-<x-layout title="Refill spots">
-    <h1>Refill spots</h1>
+<x-layout :title="__('spots.title')">
+    <h1>{{ __('spots.title') }}</h1>
 
-    <p><a href="{{ route('admin.refill-spots.create') }}">Add a spot</a></p>
+    <p><a href="{{ route('admin.refill-spots.create') }}">{{ __('spots.add_link') }}</a></p>
 
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Status</th>
+                <th>{{ __('spots.columns.name') }}</th>
+                <th>{{ __('spots.columns.location') }}</th>
+                <th>{{ __('spots.columns.status') }}</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             @forelse ($spots as $spot)
                 <tr>
-                    <td>{{ $spot->name }}</td>
+                    <td><x-shop-name :name="$spot->name" :kana="$spot->name_kana" :english="$spot->name_en" /></td>
                     <td>{{ $spot->latitude }}, {{ $spot->longitude }}</td>
                     <td>
                         @if ($spot->trashed())
-                            Removed
+                            {{ __('spots.status.removed') }}
                         @elseif ($spot->is_active)
-                            Active
+                            {{ __('spots.status.active') }}
                         @else
-                            Inactive
+                            {{ __('spots.status.inactive') }}
                         @endif
                     </td>
                     <td>
                         @if ($spot->trashed())
                             <form method="POST" action="{{ route('admin.refill-spots.restore', $spot) }}">
                                 @csrf
-                                <button type="submit">Restore</button>
+                                <button type="submit">{{ __('spots.restore') }}</button>
                             </form>
                         @else
-                            <a href="{{ route('admin.refill-spots.edit', $spot) }}">Edit</a>
+                            <a href="{{ route('admin.refill-spots.edit', $spot) }}">{{ __('spots.edit') }}</a>
                             <form method="POST" action="{{ route('admin.refill-spots.destroy', $spot) }}"
-                                  onsubmit="return confirm('Remove this spot?')">
+                                  onsubmit="return confirm(@js(__('spots.confirm_remove')))">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit">Remove</button>
+                                <button type="submit">{{ __('spots.remove') }}</button>
                             </form>
                         @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4">No spots yet.</td>
+                    <td colspan="4">{{ __('spots.empty') }}</td>
                 </tr>
             @endforelse
         </tbody>

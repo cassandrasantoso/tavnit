@@ -19,6 +19,7 @@ class PartnerApplicationSeeder extends Seeder
         if ($spot) {
             PartnerApplication::factory()->create([
                 'store_name' => $spot->name.'　',
+                'store_name_kana' => $spot->name_kana,
                 'latitude' => $spot->latitude + 0.00018,
                 'longitude' => $spot->longitude,
             ]);
